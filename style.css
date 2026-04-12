@@ -10,6 +10,7 @@
     --blanco: #FFFFFF;
 }
 
+/* MODIFICACIÓN: Optimización para sensación de App */
 body {
     background-color: var(--fondo);
     color: var(--blanco);
@@ -22,10 +23,13 @@ body {
     min-height: 100vh;
     text-align: center;
     overflow-x: hidden;
+    /* Evita el rebote elástico en móviles y asegura scroll fluido */
+    overscroll-behavior-y: none; 
+    -webkit-font-smoothing: antialiased;
 }
 
 header, main { 
-    width: 90%; 
+    width: 95%; /* Un poco más ancho en móviles */
     max-width: 700px; 
     padding: 10px 20px; 
     box-sizing: border-box; 
@@ -87,17 +91,18 @@ header, main {
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
     margin: 10px auto;
     width: 90%;
-    height: 250px; /* Alto fijo para el efecto ventana */
-    overflow: hidden; /* Esconde el texto que sale del carrete */
+    height: 250px; 
+    overflow: hidden; 
     position: relative;
     display: flex;
     justify-content: center;
-    align-items: center; /* Centra el texto corto (estático) */
+    align-items: center; 
     padding: 20px;
     box-sizing: border-box;
+    /* MODIFICACIÓN: Mejora respuesta táctil */
+    touch-action: none; 
 }
 
-/* Texto Fijo (Menú, instrucciones, escucha) */
 #texto-estatico {
     font-size: clamp(1.1rem, 3vw, 1.5rem);
     font-weight: 700;
@@ -107,7 +112,7 @@ header, main {
     z-index: 2;
 }
 
-/* Texto Desplazable (Créditos de Dimensiones) */
+/* MODIFICACIÓN: Se cambió 'top' por 'transform' para suavidad en celulares */
 #creditos-iris {
     position: absolute;
     width: 90%;
@@ -116,13 +121,15 @@ header, main {
     font-size: clamp(1.1rem, 2.6vw, 1.4rem);
     font-weight: 700;
     line-height: 1.6;
-    top: 80%; /* Empezamos un poco más arriba para que se vea rápido */
+    top: 0;
     left: 5%;
-    transition: top 0.15s ease-out; /* Bajamos de 0.4s a 0.2s para más agilidad */
-    will-change: top;
+    /* El uso de transform: translateY evita que se quede pegado */
+    transform: translateY(200px); 
+    transition: transform 0.1s linear; 
+    will-change: transform;
+    pointer-events: none;
 }
 
-/* --- ESTADO DE ALERTA (Error) --- */
 #cuadro-texto.alerta-error {
     background-color: var(--error-rojo) !important;
     border-color: var(--blanco) !important;
@@ -146,6 +153,8 @@ header, main {
     border-radius: 50px;
     box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
     transition: all 0.2s ease;
+    /* MODIFICACIÓN: Evita zoom molesto al tocar botones en iPhone */
+    touch-action: manipulation;
 }
 
 #btn-iniciar:hover {
@@ -171,7 +180,11 @@ header, main {
     #logo-unad { width: 120px; }
     #robot-avatar { width: 60px; }
     #logo-iris { font-size: 2.2rem; }
-    #cuadro-texto { height: 220px; padding: 15px; }
+    /* MODIFICACIÓN: Un poco más de aire para que no se vea apretado como app */
+    #cuadro-texto { height: 260px; padding: 20px; margin-bottom: 20px; }
     .acronimo { font-size: 0.85rem; }
     .eslogan { font-size: 0.8rem; }
+    
+    /* MODIFICACIÓN: Ocultar scrollbar en móviles para efecto app */
+    body::-webkit-scrollbar { display: none; }
 }
