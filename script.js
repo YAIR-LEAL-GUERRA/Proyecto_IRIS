@@ -40,7 +40,7 @@ function setRobotEstado(estado) {
     }
 }
 
-// --- FUNCIÓN HABLAR CON DESPLAZAMIENTO SINCRONIZADO ---
+// --- FUNCIÓN HABLAR CON DESPLAZAMIENTO SINCRONIZADO (OPTIMIZADO MÓVIL) ---
 function hablar(mensaje, callback) {
     sintetizador.cancel();
 
@@ -79,8 +79,13 @@ function hablar(mensaje, callback) {
                 const puntoInicio = alturaCuadro * 0.8;
                 const distanciaTotal = alturaTexto + (alturaCuadro * 0.5);
                 
+                // CÁLCULO DE DESPLAZAMIENTO
                 const desplazamiento = puntoInicio - (progreso * distanciaTotal);
-                contenedorCreditos.style.top = `${desplazamiento}px`;
+                
+                // MEJORA PARA MÓVILES: Uso de transform en lugar de top
+                contenedorCreditos.style.transform = `translateY(${desplazamiento}px)`;
+                // Forzamos top a 0 para que no interfiera con el transform
+                contenedorCreditos.style.top = "0"; 
             }
         };
     } else {
@@ -104,7 +109,6 @@ function hablar(mensaje, callback) {
 }
 
 function iniciarEscucha() {
-
     // 🛑 EVITA ESCUCHAR SI AÚN HABLA
     if (irisHablando) return;
 
@@ -117,7 +121,6 @@ function iniciarEscucha() {
 }
 
 oido.onresult = (event) => {
-
     // 🧠 IGNORA VOZ SI IRIS HABLA
     if (irisHablando) return;
 
