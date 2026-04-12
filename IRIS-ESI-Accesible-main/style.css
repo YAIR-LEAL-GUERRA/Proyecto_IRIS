@@ -1,0 +1,177 @@
+/* ============================================================
+   ESTILOS GLOBALES E IDENTIDAD VISUAL (IRIS - UNAD)
+   ============================================================ */
+:root {
+    --fondo: #000000;
+    --neon-verde: #00FF00;
+    --neon-amarillo: #FFFF00;
+    --neon-azul: #00FFFF;
+    --error-rojo: #FF0000;
+    --blanco: #FFFFFF;
+}
+
+body {
+    background-color: var(--fondo);
+    color: var(--blanco);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    text-align: center;
+    overflow-x: hidden;
+}
+
+header, main { 
+    width: 90%; 
+    max-width: 700px; 
+    padding: 10px 20px; 
+    box-sizing: border-box; 
+}
+
+#logo-unad {
+    width: 150px;
+    height: auto;
+    display: block;
+    margin: 5px auto;
+}
+
+.contenedor-linea {
+    display: flex;
+    flex-direction: row; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 15px; 
+    margin: 5px 0;
+}
+
+#robot-avatar {
+    width: 70px;
+    height: auto;
+    transition: all 0.4s ease;
+}
+
+#logo-iris { 
+    font-size: clamp(2.2rem, 7vw, 3.8rem); 
+    margin: 0; 
+    color: var(--neon-verde); 
+    text-shadow: 0 0 15px rgba(0, 255, 0, 0.7); 
+}
+
+.acronimo { font-size: 1rem; color: var(--blanco); margin: 2px 0; letter-spacing: 1px; }
+
+.eslogan { 
+    color: var(--neon-amarillo); 
+    font-size: 0.9rem; 
+    margin: 0 0 10px 0; 
+    font-style: italic; 
+}
+
+/* ============================================================
+   ESTADOS DEL ROBOT
+   ============================================================ */
+.robot-reposo { filter: drop-shadow(0 0 8px var(--neon-verde)); animation: levitarReposo 4s ease-in-out infinite; }
+.robot-hablando { filter: drop-shadow(0 0 15px var(--neon-verde)); animation: vibrarHabla 0.2s ease-in-out infinite; }
+.robot-escuchando { filter: drop-shadow(0 0 25px var(--neon-azul)); animation: pulsoEscucha 1.2s ease-in-out infinite; transform: scale(1.1); }
+.robot-error { filter: drop-shadow(0 0 15px var(--error-rojo)); animation: temblorError 0.5s ease-in-out; }
+
+/* ============================================================
+   INTERFAZ DE USUARIO (CUADRO DE TEXTO)
+   ============================================================ */
+#cuadro-texto {
+    border: 3px solid var(--neon-verde);
+    border-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.85);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    margin: 10px auto;
+    width: 90%;
+    height: 250px; /* Alto fijo para el efecto ventana */
+    overflow: hidden; /* Esconde el texto que sale del carrete */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centra el texto corto (estático) */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Texto Fijo (Menú, instrucciones, escucha) */
+#texto-estatico {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: var(--neon-azul);
+    text-align: center;
+    animation: aparecerSuave 0.5s ease;
+    z-index: 2;
+}
+
+/* Texto Desplazable (Créditos de Dimensiones) */
+#creditos-iris {
+    position: absolute;
+    width: 90%;
+    text-align: center;
+    color: var(--neon-verde);
+    font-size: clamp(1.1rem, 2.6vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.6;
+    top: 80%; /* Empezamos un poco más arriba para que se vea rápido */
+    left: 5%;
+    transition: top 0.15s ease-out; /* Bajamos de 0.4s a 0.2s para más agilidad */
+    will-change: top;
+}
+
+/* --- ESTADO DE ALERTA (Error) --- */
+#cuadro-texto.alerta-error {
+    background-color: var(--error-rojo) !important;
+    border-color: var(--blanco) !important;
+    animation: pulsoAlerta 1s infinite alternate;
+}
+
+.error-texto { color: var(--blanco) !important; }
+
+/* ============================================================
+   BOTONES Y CONTROLES
+   ============================================================ */
+#btn-iniciar {
+    background-color: var(--neon-verde);
+    color: #000;
+    border: none;
+    padding: 12px 35px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+    transition: all 0.2s ease;
+}
+
+#btn-iniciar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px var(--neon-verde);
+    background-color: #33ff33;
+}
+
+/* ============================================================
+   ANIMACIONES
+   ============================================================ */
+@keyframes aparecerSuave { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulsoAlerta { from { transform: scale(1); } to { transform: scale(1.03); } }
+@keyframes levitarReposo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes vibrarHabla { 0% { transform: translate(1px); } 50% { transform: translate(-1px); } }
+@keyframes pulsoEscucha { 0%, 100% { transform: scale(1.05); } 50% { transform: scale(1.1); } }
+@keyframes temblorError { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* ============================================================
+   MEDIA QUERY (RESPONSIVE)
+   ============================================================ */
+@media (max-width: 600px) {
+    #logo-unad { width: 120px; }
+    #robot-avatar { width: 60px; }
+    #logo-iris { font-size: 2.2rem; }
+    #cuadro-texto { height: 220px; padding: 15px; }
+    .acronimo { font-size: 0.85rem; }
+    .eslogan { font-size: 0.8rem; }
+}
