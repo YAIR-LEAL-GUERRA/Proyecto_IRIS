@@ -10,7 +10,6 @@
     --blanco: #FFFFFF;
 }
 
-/* MODIFICACIÓN: Optimización para sensación de App */
 body {
     background-color: var(--fondo);
     color: var(--blanco);
@@ -20,16 +19,15 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    min-height: 100vh;
+    min-height: calc(var(--vh, 1vh) * 100);
     text-align: center;
     overflow-x: hidden;
-    /* Evita el rebote elástico en móviles y asegura scroll fluido */
     overscroll-behavior-y: none; 
     -webkit-font-smoothing: antialiased;
 }
 
 header, main { 
-    width: 95%; /* Un poco más ancho en móviles */
+    width: 95%;
     max-width: 700px; 
     padding: 10px 20px; 
     box-sizing: border-box; 
@@ -37,25 +35,18 @@ header, main {
 
 #logo-unad {
     width: 150px;
-    height: auto;
     display: block;
     margin: 5px auto;
 }
 
 .contenedor-linea {
     display: flex;
-    flex-direction: row; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 15px; 
-    margin: 5px 0;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
 }
 
-#robot-avatar {
-    width: 70px;
-    height: auto;
-    transition: all 0.4s ease;
-}
+#robot-avatar { width: 70px; }
 
 #logo-iris { 
     font-size: clamp(2.2rem, 7vw, 3.8rem); 
@@ -64,127 +55,87 @@ header, main {
     text-shadow: 0 0 15px rgba(0, 255, 0, 0.7); 
 }
 
-.acronimo { font-size: 1rem; color: var(--blanco); margin: 2px 0; letter-spacing: 1px; }
-
-.eslogan { 
-    color: var(--neon-amarillo); 
-    font-size: 0.9rem; 
-    margin: 0 0 10px 0; 
-    font-style: italic; 
-}
+.acronimo { font-size: 1rem; }
+.eslogan { color: var(--neon-amarillo); font-size: 0.9rem; }
 
 /* ============================================================
-   ESTADOS DEL ROBOT
-   ============================================================ */
-.robot-reposo { filter: drop-shadow(0 0 8px var(--neon-verde)); animation: levitarReposo 4s ease-in-out infinite; }
-.robot-hablando { filter: drop-shadow(0 0 15px var(--neon-verde)); animation: vibrarHabla 0.2s ease-in-out infinite; }
-.robot-escuchando { filter: drop-shadow(0 0 25px var(--neon-azul)); animation: pulsoEscucha 1.2s ease-in-out infinite; transform: scale(1.1); }
-.robot-error { filter: drop-shadow(0 0 15px var(--error-rojo)); animation: temblorError 0.5s ease-in-out; }
-
-/* ============================================================
-   INTERFAZ DE USUARIO (CUADRO DE TEXTO)
+   CUADRO DE TEXTO
    ============================================================ */
 #cuadro-texto {
     border: 3px solid var(--neon-verde);
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.85);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
     margin: 10px auto;
     width: 90%;
-    height: 250px; 
-    overflow: hidden; 
+    height: calc(var(--vh, 1vh) * 35);
+    overflow: hidden;
     position: relative;
     display: flex;
     justify-content: center;
-    align-items: center; 
-    padding: 20px;
-    box-sizing: border-box;
-    /* MODIFICACIÓN: Mejora respuesta táctil */
-    touch-action: none; 
+    align-items: center;
 }
 
+/* 🎬 FADE TIPO NETFLIX */
+#cuadro-texto::before,
+#cuadro-texto::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+#cuadro-texto::before {
+    top: 0;
+    background: linear-gradient(to bottom, black, transparent);
+}
+
+#cuadro-texto::after {
+    bottom: 0;
+    background: linear-gradient(to top, black, transparent);
+}
+
+/* TEXTO */
 #texto-estatico {
     font-size: clamp(1.1rem, 3vw, 1.5rem);
     font-weight: 700;
     color: var(--neon-azul);
-    text-align: center;
-    animation: aparecerSuave 0.5s ease;
-    z-index: 2;
 }
 
-/* MODIFICACIÓN: Se cambió 'top' por 'transform' para suavidad en celulares */
+/* CRÉDITOS */
 #creditos-iris {
     position: absolute;
     width: 90%;
+    left: 5%;
     text-align: center;
     color: var(--neon-verde);
     font-size: clamp(1.1rem, 2.6vw, 1.4rem);
     font-weight: 700;
     line-height: 1.6;
-    top: 0;
-    left: 5%;
-    /* El uso de transform: translateY evita que se quede pegado */
-    transform: translateY(200px); 
-    transition: transform 0.1s linear; 
+    transform: translateY(calc(var(--vh, 1vh) * 100));
     will-change: transform;
-    pointer-events: none;
 }
-
-#cuadro-texto.alerta-error {
-    background-color: var(--error-rojo) !important;
-    border-color: var(--blanco) !important;
-    animation: pulsoAlerta 1s infinite alternate;
-}
-
-.error-texto { color: var(--blanco) !important; }
 
 /* ============================================================
-   BOTONES Y CONTROLES
+   BOTÓN
    ============================================================ */
 #btn-iniciar {
     background-color: var(--neon-verde);
     color: #000;
     border: none;
     padding: 12px 35px;
-    font-size: 1.1rem;
     font-weight: 800;
-    cursor: pointer;
-    margin-top: 10px;
     border-radius: 50px;
-    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
-    transition: all 0.2s ease;
-    /* MODIFICACIÓN: Evita zoom molesto al tocar botones en iPhone */
-    touch-action: manipulation;
-}
-
-#btn-iniciar:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px var(--neon-verde);
-    background-color: #33ff33;
+    margin-top: 10px;
 }
 
 /* ============================================================
-   ANIMACIONES
-   ============================================================ */
-@keyframes aparecerSuave { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-@keyframes pulsoAlerta { from { transform: scale(1); } to { transform: scale(1.03); } }
-@keyframes levitarReposo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes vibrarHabla { 0% { transform: translate(1px); } 50% { transform: translate(-1px); } }
-@keyframes pulsoEscucha { 0%, 100% { transform: scale(1.05); } 50% { transform: scale(1.1); } }
-@keyframes temblorError { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-
-/* ============================================================
-   MEDIA QUERY (RESPONSIVE)
+   RESPONSIVE
    ============================================================ */
 @media (max-width: 600px) {
-    #logo-unad { width: 120px; }
-    #robot-avatar { width: 60px; }
-    #logo-iris { font-size: 2.2rem; }
-    /* MODIFICACIÓN: Un poco más de aire para que no se vea apretado como app */
-    #cuadro-texto { height: 260px; padding: 20px; margin-bottom: 20px; }
-    .acronimo { font-size: 0.85rem; }
-    .eslogan { font-size: 0.8rem; }
-    
-    /* MODIFICACIÓN: Ocultar scrollbar en móviles para efecto app */
-    body::-webkit-scrollbar { display: none; }
+    #cuadro-texto {
+        height: calc(var(--vh, 1vh) * 40);
+    }
 }

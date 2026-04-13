@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- 🔧 Mejora de viewport para móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
     <title>IRIS - Interfaz de Respuesta Integral y Sensorial</title>
     
     <meta name="mobile-web-app-capable" content="yes">
@@ -19,7 +22,7 @@
 <body role="application" aria-label="IRIS: Estrategia Pedagógica de Educación Sexual Integral">
 
     <header role="banner">
-     <img src="img/logo.jpg" alt="Logo UNAD" id="logo-unad">
+        <img src="img/logo.jpg" alt="Logo UNAD" id="logo-unad">
         
         <div class="contenedor-linea">
             <div id="avatar-robot-contenedor">
@@ -34,8 +37,6 @@
 
     <main id="contenedor-principal" role="main">
         
-        
-
         <section id="pantalla-interactiva" aria-live="polite">
             <div id="cuadro-texto">
                 <p id="texto-dinamico">Presiona el botón, cualquier tecla o toca la pantalla para iniciar.</p>
@@ -52,5 +53,23 @@
     </footer>
 
     <script src="script.js"></script>
+
+    <!-- 🔧 FIX CLAVE PARA MÓVILES (especialmente WhatsApp WebView) -->
+    <script>
+        function setRealHeight() {
+            document.documentElement.style.setProperty(
+                '--vh',
+                (window.innerHeight * 0.01) + 'px'
+            );
+        }
+
+        // Ejecutar al cargar
+        setRealHeight();
+
+        // Recalcular en cambios de pantalla
+        window.addEventListener('resize', setRealHeight);
+        window.addEventListener('orientationchange', setRealHeight);
+    </script>
+
 </body>
 </html>
