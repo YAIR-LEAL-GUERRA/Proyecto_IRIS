@@ -179,7 +179,13 @@ function manejar(texto) {
 function iniciar() {
     nombreUsuario = "";
     temasVistos = [];
-    hablar("Hola, soy IRIS, tu guía. ¿Cuál es tu nombre?");
+    
+    // Mensaje con Diseño Universal: invita a la acción sin importar la capacidad física
+    hablar(
+        "Hola, soy IRIS, tu guía en derechos y autonomía. Estoy aquí para acompañarte a reconocer tu poder y la libertad sobre tu propio cuerpo. " +
+        "Este es un espacio seguro para ti: puedes comunicarte conmigo a través de tu voz, o si lo prefieres, utilizando tu pantalla o teclado. " +
+        "Antes de comenzar nuestro viaje... ¿Cómo te gustaría que te llame?"
+    );
 }
 
 // Iniciar al cargar
