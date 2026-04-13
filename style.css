@@ -1,5 +1,5 @@
 /* ============================================================
-   ESTILOS GLOBALES E IDENTIDAD VISUAL (IRIS - UNAD)
+   IDENTIDAD VISUAL (IRIS - UNAD)
    ============================================================ */
 :root {
     --fondo: #000000;
@@ -18,124 +18,121 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    min-height: 100vh;
     min-height: calc(var(--vh, 1vh) * 100);
     text-align: center;
-    overflow-x: hidden;
-    overscroll-behavior-y: none; 
-    -webkit-font-smoothing: antialiased;
-}
-
-header, main { 
-    width: 95%;
-    max-width: 700px; 
-    padding: 10px 20px; 
-    box-sizing: border-box; 
 }
 
 #logo-unad {
     width: 150px;
-    display: block;
     margin: 5px auto;
 }
 
-.contenedor-linea {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
+/* ============================================================
+   ESTADOS DEL AVATAR (Basado en tus clases de JS)
+   ============================================================ */
+#robot-avatar {
+    width: 70px;
+    transition: all 0.3s ease;
 }
 
-#robot-avatar { width: 70px; }
-
-#logo-iris { 
-    font-size: clamp(2.2rem, 7vw, 3.8rem); 
-    margin: 0; 
-    color: var(--neon-verde); 
-    text-shadow: 0 0 15px rgba(0, 255, 0, 0.7); 
+/* Efecto cuando IRIS está hablando */
+.robot-hablando {
+    filter: drop-shadow(0 0 10px var(--neon-verde));
+    transform: scale(1.1);
 }
-
-.acronimo { font-size: 1rem; }
-.eslogan { color: var(--neon-amarillo); font-size: 0.9rem; }
 
 /* ============================================================
-   CUADRO DE TEXTO
+   CUADRO DE TEXTO (Con efectos de estado)
    ============================================================ */
 #cuadro-texto {
     border: 3px solid var(--neon-verde);
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.85);
-    margin: 10px auto;
+    margin: 15px auto;
     width: 90%;
-    height: calc(var(--vh, 1vh) * 35);
+    max-width: 600px;
+    height: 40vh;
+    height: calc(var(--vh, 1vh) * 40);
     overflow: hidden;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: all 0.3s ease;
 }
 
-/* 🎬 FADE TIPO NETFLIX */
-#cuadro-texto::before,
-#cuadro-texto::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    z-index: 3;
-    pointer-events: none;
+/* 🟢 Efecto LATIDO cuando escucha */
+.robot-escuchando ~ #pantalla-interactiva #cuadro-texto,
+#cuadro-texto.escuchando { /* Por si aplicas la clase directo */
+    border-color: var(--neon-azul);
+    animation: latido-azul 1.5s infinite;
 }
 
-#cuadro-texto::before {
-    top: 0;
-    background: linear-gradient(to bottom, black, transparent);
+/* 🔴 Efecto ALERTA cuando hay error */
+.alerta-error {
+    border-color: var(--error-rojo) !important;
+    animation: vibrar-rojo 0.3s linear;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
 }
 
-#cuadro-texto::after {
-    bottom: 0;
-    background: linear-gradient(to top, black, transparent);
+@keyframes latido-azul {
+    0% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.2); }
+    50% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.6); }
+    100% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.2); }
 }
 
-/* TEXTO */
-#texto-estatico {
-    font-size: clamp(1.1rem, 3vw, 1.5rem);
-    font-weight: 700;
-    color: var(--neon-azul);
-}
-
-/* CRÉDITOS */
-#creditos-iris {
-    position: absolute;
-    width: 90%;
-    left: 5%;
-    text-align: center;
-    color: var(--neon-verde);
-    font-size: clamp(1.1rem, 2.6vw, 1.4rem);
-    font-weight: 700;
-    line-height: 1.6;
-    transform: translateY(calc(var(--vh, 1vh) * 100));
-    will-change: transform;
+@keyframes vibrar-rojo {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
 }
 
 /* ============================================================
-   BOTÓN
+   BOTÓN MECÁNICO (Efecto de hundirse)
    ============================================================ */
 #btn-iniciar {
     background-color: var(--neon-verde);
     color: #000;
     border: none;
-    padding: 12px 35px;
+    padding: 15px 40px;
+    font-size: 1.1rem;
     font-weight: 800;
     border-radius: 50px;
-    margin-top: 10px;
+    cursor: pointer;
+    position: relative;
+    top: 0;
+    box-shadow: 0 5px 0px #009900; /* La "base" del botón */
+    transition: all 0.1s ease;
+    text-transform: uppercase;
+}
+
+#btn-iniciar:hover {
+    background-color: #33ff33;
+    top: -2px;
+    box-shadow: 0 7px 0px #009900;
+}
+
+#btn-iniciar:active {
+    top: 5px; /* Se hunde al oprimir */
+    box-shadow: 0 0px 0px #009900;
 }
 
 /* ============================================================
-   RESPONSIVE
+   TEXTOS (Ajustado a #texto-dinamico y #creditos-iris)
    ============================================================ */
-@media (max-width: 600px) {
-    #cuadro-texto {
-        height: calc(var(--vh, 1vh) * 40);
-    }
+#texto-dinamico, #texto-estatico {
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    color: var(--neon-azul);
+    font-weight: bold;
+    padding: 15px;
+}
+
+#creditos-iris {
+    position: absolute;
+    width: 90%;
+    color: var(--neon-verde);
+    font-size: 1.2rem;
+    line-height: 1.6;
+    will-change: transform;
 }
