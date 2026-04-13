@@ -12,19 +12,53 @@ const cuadro = document.getElementById("cuadro-texto");
 let temasVistos = [];
 const temas = ["cuerpo", "mitos", "decisión"];
 
+/* =========================
+   VOZ FEMENINA FORZADA (MEJOR POSIBLE)
+========================= */
+let vozFemenina = null;
+
+function cargarVozFemenina() {
+    const voces = synth.getVoices();
+
+    vozFemenina =
+        voces.find(v =>
+            (v.lang.includes("es-ES") ||
+             v.lang.includes("es-MX") ||
+             v.lang.includes("es-CO")) &&
+            (
+                v.name.toLowerCase().includes("female") ||
+                v.name.toLowerCase().includes("maria") ||
+                v.name.toLowerCase().includes("sofia") ||
+                v.name.toLowerCase().includes("lucia") ||
+                v.name.toLowerCase().includes("google") ||
+                v.name.toLowerCase().includes("microsoft")
+            )
+        ) ||
+        voces.find(v => v.lang.includes("es")) ||
+        voces[0];
+}
+
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = cargarVozFemenina;
+}
+cargarVozFemenina();
+
+/* =========================
+   CONFIG VOZ
+========================= */
 oido.lang = "es-CO";
 oido.continuous = false;
 oido.interimResults = false;
 
 /* =========================
-   MICRO FEEDBACK (VIBRACIÓN)
+   PAUSA TÁCTIL (SOLO ANIMACIÓN)
 ========================= */
-function vibrar(ms = 20) {
-    if (navigator.vibrate) navigator.vibrate(ms);
-}
+cuadro.addEventListener("click", () => {
+    animacionActiva = !animacionActiva;
+});
 
 /* =========================
-   ESTADO VISUAL
+   ESTADO ROBOT
 ========================= */
 function setEstado(estado) {
     if (!robot) return;
@@ -36,15 +70,7 @@ function setEstado(estado) {
 }
 
 /* =========================
-   PAUSA TÁCTIL
-========================= */
-cuadro.addEventListener("click", () => {
-    animacionActiva = !animacionActiva;
-    vibrar(10);
-});
-
-/* =========================
-   MOTOR DE VOZ PRO
+   MOTOR DE VOZ + TEXTO
 ========================= */
 function hablar(texto, callback) {
     synth.cancel();
@@ -58,6 +84,10 @@ function hablar(texto, callback) {
     utter.rate = 0.98;
     utter.pitch = 1.08;
     utter.volume = 1;
+
+    if (vozFemenina) {
+        utter.voice = vozFemenina;
+    }
 
     const esLargo = texto.length > 160;
     const el = document.createElement("div");
@@ -79,7 +109,6 @@ function hablar(texto, callback) {
             if (animacionActiva) {
                 const p = Math.min((t - start) / duracion, 1);
 
-                // easing suave tipo app profesional
                 const eased = 1 - Math.pow(1 - p, 3);
 
                 const y = startY + (endY - startY) * eased;
@@ -99,8 +128,6 @@ function hablar(texto, callback) {
         cuadro.appendChild(el);
     }
 
-    utter.onstart = () => vibrar(5);
-
     utter.onend = () => {
         irisHablando = false;
         setEstado("escuchando");
@@ -108,7 +135,7 @@ function hablar(texto, callback) {
         setTimeout(() => {
             if (callback) callback();
             else escuchar();
-        }, 700);
+        }, 800);
     };
 
     synth.speak(utter);
@@ -128,14 +155,12 @@ function escuchar() {
 }
 
 /* =========================
-   VOZ INPUT
+   RESULTADO VOZ
 ========================= */
 oido.onresult = (e) => {
     if (irisHablando) return;
 
     const texto = e.results[0][0].transcript.toLowerCase();
-
-    vibrar(15);
 
     if (!nombreUsuario) {
         nombreUsuario = texto;
@@ -143,10 +168,10 @@ oido.onresult = (e) => {
         hablar(
 `Hola ${nombreUsuario}.
 
-Soy IRIS, un asistente educativo sobre autonomía, cuerpo y toma de decisiones.
+Soy IRIS, una interfaz educativa sobre autonomía, cuerpo y decisiones.
 
-Exploraremos tres pilares fundamentales:
-cuerpo, mitos y decisión.
+Exploraremos tres temas:
+CUERPO, MITOS y DECISIÓN.
 
 Di uno para comenzar.`
         );
@@ -158,7 +183,7 @@ Di uno para comenzar.`
 };
 
 /* =========================
-   LÓGICA INTELIGENTE
+   LÓGICA TEMAS
 ========================= */
 function manejar(texto) {
 
@@ -169,13 +194,13 @@ function manejar(texto) {
     if (texto.includes("decisión") || texto.includes("decision")) tema = "decisión";
 
     if (!tema) {
-        hablar("No lo entendí claramente. Di: cuerpo, mitos o decisión.");
+        hablar("No entendí. Di: cuerpo, mitos o decisión.");
         return;
     }
 
     if (temasVistos.includes(tema)) {
         const faltan = temas.filter(t => !temasVistos.includes(t));
-        hablar(`Ya exploraste ese tema. Te faltan: ${faltan.join(" y ").toUpperCase()}.`);
+        hablar(`Ya viste ese tema. Te faltan: ${faltan.join(" y ").toUpperCase()}.`);
         return;
     }
 
@@ -189,27 +214,25 @@ Tu cuerpo es tu primer territorio de autonomía.
 
 Tienes derecho a conocerlo, cuidarlo y decidir sobre él.
 
-Nadie puede sustituir tu consentimiento.
-
 IRIS te recuerda: tu cuerpo es tuyo.`,
 
         mitos:
 `TEMA: MITOS
 
-Existen creencias sociales que limitan la libertad afectiva y sexual.
+Existen creencias sociales que limitan la libertad afectiva.
 
-Pero tú tienes derecho a amar, elegir y expresarte sin prejuicios.
+Pero tú tienes derecho a vivir sin prejuicios.
 
-IRIS te recuerda: los mitos no definen tu identidad.`,
+IRIS te recuerda: los mitos no te definen.`,
 
         decisión:
 `TEMA: DECISIÓN
 
-La autonomía significa decidir tu vida con información y libertad.
+La autonomía significa decidir con libertad e información.
 
 No es obedecer, es elegir.
 
-IRIS te recuerda: decidir es tu poder.`
+IRIS te recuerda: decidir es tu derecho.`
     };
 
     const faltan = temas.filter(t => !temasVistos.includes(t));
@@ -217,13 +240,13 @@ IRIS te recuerda: decidir es tu poder.`
     if (faltan.length) {
         hablar(`${contenido[tema]}
 
-Te falta explorar: ${faltan.join(" y ").toUpperCase()}.`);
+Te falta: ${faltan.join(" y ").toUpperCase()}.`);
     } else {
         hablar(`${contenido[tema]}
 
 Felicidades ${nombreUsuario}.
 
-Has completado los tres pilares de IRIS.
+Completaste los 3 temas de IRIS.
 
 Puedes decir REPETIR o SALIR.`);
     }
