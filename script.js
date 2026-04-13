@@ -55,7 +55,7 @@ function hablar(texto, callback) {
 
     const utter = new SpeechSynthesisUtterance(texto);
     utter.lang = "es-CO";
-    utter.rate = 0.75; // Velocidad óptima para comprensión
+    utter.rate = 0.65; // Velocidad óptima para comprensión
     utter.pitch = 1.05;
     if (vozFemenina) utter.voice = vozFemenina;
 
