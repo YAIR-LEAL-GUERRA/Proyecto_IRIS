@@ -15,43 +15,55 @@ body {
     color: var(--blanco);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
+    padding: 0;
+    /* EVITA EL SCROLL EN MÓVILES */
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    overflow: hidden; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
-    min-height: calc(var(--vh, 1vh) * 100);
-    text-align: center;
+    justify-content: space-between; /* Distribuye elementos para ocupar toda la pantalla */
+}
+
+header {
+    width: 100%;
+    padding-top: 10px;
+    flex-shrink: 0;
 }
 
 #logo-unad {
-    width: 150px;
-    margin: 5px auto;
+    width: 100px; /* Tamaño optimizado para que no empuje el resto */
+    margin: 0 auto 5px;
+    display: block;
 }
 
 /* ============================================================
-   ESTADOS DEL AVATAR (Basado en tus clases de JS)
+   ESTADOS DEL AVATAR
    ============================================================ */
 #robot-avatar {
-    width: 70px;
+    width: 60px;
     transition: all 0.3s ease;
 }
 
-/* Efecto cuando IRIS está hablando */
 .robot-hablando {
     filter: drop-shadow(0 0 10px var(--neon-verde));
     transform: scale(1.1);
 }
 
 /* ============================================================
-   CUADRO DE TEXTO (Con efectos de estado)
+   CUADRO DE TEXTO (ESTABLE Y FIJO)
    ============================================================ */
 #cuadro-texto {
+    /* Mantiene el tamaño real sin importar bordes o sombras */
+    box-sizing: border-box; 
     border: 3px solid var(--neon-verde);
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.85);
-    margin: 15px auto;
-    width: 90%;
-    max-width: 600px;
+    margin: 10px auto;
+    width: 92%;
+    max-width: 550px;
+    /* Alto dinámico para dejar espacio al botón */
     height: 40vh;
     height: calc(var(--vh, 1vh) * 40);
     overflow: hidden;
@@ -59,80 +71,84 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
-/* 🟢 Efecto LATIDO cuando escucha */
-.robot-escuchando ~ #pantalla-interactiva #cuadro-texto,
-#cuadro-texto.escuchando { /* Por si aplicas la clase directo */
+/* 🔵 Estado: ESCUCHANDO (Neon azul titilante) */
+#cuadro-texto.escuchando {
     border-color: var(--neon-azul);
-    animation: latido-azul 1.5s infinite;
+    animation: neon-titilante-azul 1.5s infinite ease-in-out;
 }
 
-/* 🔴 Efecto ALERTA cuando hay error */
-.alerta-error {
+/* 🔴 Estado: ERROR (Neon rojo y vibración) */
+#cuadro-texto.alerta-error {
     border-color: var(--error-rojo) !important;
-    animation: vibrar-rojo 0.3s linear;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+    animation: vibrar-rojo 0.3s linear, neon-titilante-rojo 1.5s infinite;
 }
 
-@keyframes latido-azul {
-    0% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.2); }
-    50% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.6); }
-    100% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.2); }
+@keyframes neon-titilante-azul {
+    0%, 100% { box-shadow: 0 0 5px var(--neon-azul), inset 0 0 5px var(--neon-azul); }
+    50% { box-shadow: 0 0 20px var(--neon-azul), inset 0 0 10px var(--neon-azul); }
+}
+
+@keyframes neon-titilante-rojo {
+    0%, 100% { box-shadow: 0 0 5px var(--error-rojo), inset 0 0 5px var(--error-rojo); }
+    50% { box-shadow: 0 0 20px var(--error-rojo), inset 0 0 10px var(--error-rojo); }
 }
 
 @keyframes vibrar-rojo {
     0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
 }
 
 /* ============================================================
-   BOTÓN MECÁNICO (Efecto de hundirse)
+   BOTÓN MECÁNICO
    ============================================================ */
 #btn-iniciar {
     background-color: var(--neon-verde);
     color: #000;
     border: none;
-    padding: 15px 40px;
-    font-size: 1.1rem;
+    padding: 12px 35px;
+    font-size: 1rem;
     font-weight: 800;
     border-radius: 50px;
     cursor: pointer;
     position: relative;
     top: 0;
-    box-shadow: 0 5px 0px #009900; /* La "base" del botón */
+    box-shadow: 0 5px 0px #009900;
     transition: all 0.1s ease;
     text-transform: uppercase;
-}
-
-#btn-iniciar:hover {
-    background-color: #33ff33;
-    top: -2px;
-    box-shadow: 0 7px 0px #009900;
+    flex-shrink: 0; /* Evita que el botón se achique */
+    margin-bottom: 10px;
 }
 
 #btn-iniciar:active {
-    top: 5px; /* Se hunde al oprimir */
+    top: 5px;
     box-shadow: 0 0px 0px #009900;
 }
 
 /* ============================================================
-   TEXTOS (Ajustado a #texto-dinamico y #creditos-iris)
+   TEXTOS Y CRÉDITOS
    ============================================================ */
 #texto-dinamico, #texto-estatico {
-    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    font-size: clamp(1rem, 4vw, 1.3rem);
     color: var(--neon-azul);
     font-weight: bold;
-    padding: 15px;
+    padding: 12px;
 }
 
 #creditos-iris {
     position: absolute;
     width: 90%;
     color: var(--neon-verde);
-    font-size: 1.2rem;
-    line-height: 1.6;
+    font-size: 1.1rem;
+    line-height: 1.5;
     will-change: transform;
+}
+
+footer {
+    padding: 5px;
+    font-size: 0.65rem;
+    flex-shrink: 0;
 }
