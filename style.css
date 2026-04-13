@@ -1,5 +1,5 @@
 /* ============================================================
-   PROYECTO IRIS - SOLUCIÓN FINAL (ESTRUCTURA DE HIERRO)
+   ESTILOS GLOBALES E IDENTIDAD VISUAL (IRIS - UNAD)
    ============================================================ */
 :root {
     --fondo: #000000;
@@ -10,122 +10,197 @@
     --blanco: #FFFFFF;
 }
 
+/* MODIFICACIÓN: Optimización para sensación de App */
 body {
     background-color: var(--fondo);
     color: var(--blanco);
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
-    padding: 0;
-    height: 100vh;
-    height: calc(var(--vh, 1vh) * 100);
-    overflow: hidden; 
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+
+    /* 🔥 FIX CLAVE PARA MÓVILES */
+    min-height: calc(var(--vh, 1vh) * 100);
+
     text-align: center;
+    overflow-x: hidden;
+    overscroll-behavior-y: none; 
+    -webkit-font-smoothing: antialiased;
 }
 
-header {
-    width: 100%;
-    padding: 15px 0;
-    flex-shrink: 0;
+header, main { 
+    width: 95%;
+    max-width: 700px; 
+    padding: 10px 20px; 
+    box-sizing: border-box; 
 }
 
-#logo-unad { width: 90px; margin: 0 auto; display: block; }
+#logo-unad {
+    width: 150px;
+    height: auto;
+    display: block;
+    margin: 5px auto;
+}
 
 .contenedor-linea {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+    flex-direction: row; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 15px; 
+    margin: 5px 0;
+}
+
+#robot-avatar {
+    width: 70px;
+    height: auto;
+    transition: all 0.4s ease;
+}
+
+#logo-iris { 
+    font-size: clamp(2.2rem, 7vw, 3.8rem); 
+    margin: 0; 
+    color: var(--neon-verde); 
+    text-shadow: 0 0 15px rgba(0, 255, 0, 0.7); 
+}
+
+.acronimo { font-size: 1rem; color: var(--blanco); margin: 2px 0; letter-spacing: 1px; }
+
+.eslogan { 
+    color: var(--neon-amarillo); 
+    font-size: 0.9rem; 
+    margin: 0 0 10px 0; 
+    font-style: italic; 
 }
 
 /* ============================================================
-   EL CENTRO (Donde estaba el desastre)
+   ESTADOS DEL ROBOT
    ============================================================ */
-main {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Centra vertical */
-    align-items: center;     /* Centra horizontal */
-    width: 100%;             /* IMPORTANTE: ocupa todo el ancho en PC */
-}
+.robot-reposo { filter: drop-shadow(0 0 8px var(--neon-verde)); animation: levitarReposo 4s ease-in-out infinite; }
+.robot-hablando { filter: drop-shadow(0 0 15px var(--neon-verde)); animation: vibrarHabla 0.2s ease-in-out infinite; }
+.robot-escuchando { filter: drop-shadow(0 0 25px var(--neon-azul)); animation: pulsoEscucha 1.2s ease-in-out infinite; transform: scale(1.1); }
+.robot-error { filter: drop-shadow(0 0 15px var(--error-rojo)); animation: temblorError 0.5s ease-in-out; }
 
+/* ============================================================
+   INTERFAZ DE USUARIO (CUADRO DE TEXTO)
+   ============================================================ */
 #cuadro-texto {
-    box-sizing: border-box;
     border: 3px solid var(--neon-verde);
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.85);
-    
-    /* 🛠️ EL FIX DEL "CUADRO CERRADO": */
-    width: 90%;             /* Ancho en móvil */
-    max-width: 500px;       /* Ancho máximo en PC */
-    min-width: 280px;       /* EVITA QUE SE CIERRE COMO UNA LÍNEA */
-    
-    height: 40vh;
-    height: calc(var(--vh, 1vh) * 40);
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    margin: 10px auto;
+    width: 90%;
+
+    /* 🔥 FIX CLAVE */
+    height: calc(var(--vh, 1vh) * 35);
+
+    overflow: hidden; 
     position: relative;
-    overflow: hidden;
-    flex-shrink: 0;         /* OBLIGA A QUE NO SE DEJE APLASTAR */
-}
-
-#controles {
-    width: 100%;
-    margin-top: 20px;
     display: flex;
     justify-content: center;
+    align-items: center; 
+    padding: 20px;
+    box-sizing: border-box;
+    touch-action: none; 
 }
 
+#texto-estatico {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: var(--neon-azul);
+    text-align: center;
+    animation: aparecerSuave 0.5s ease;
+    z-index: 2;
+}
+
+/* ============================================================
+   🔥 CRÉDITOS CORREGIDOS PARA MÓVIL
+   ============================================================ */
+#creditos-iris {
+    position: absolute;
+    width: 90%;
+    text-align: center;
+    color: var(--neon-verde);
+    font-size: clamp(1.1rem, 2.6vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.6;
+
+    left: 5%;
+
+    /* 🔥 INICIO FUERA DEL CUADRO (REAL) */
+    transform: translateY(calc(var(--vh, 1vh) * 100));
+
+    transition: transform 0.1s linear; 
+    will-change: transform;
+    pointer-events: none;
+}
+
+/* 🔥 CLASE PARA ANIMAR (usa JS seguramente) */
+.creditos-activos {
+    transform: translateY(calc(var(--vh, 1vh) * -120));
+}
+
+#cuadro-texto.alerta-error {
+    background-color: var(--error-rojo) !important;
+    border-color: var(--blanco) !important;
+    animation: pulsoAlerta 1s infinite alternate;
+}
+
+.error-texto { color: var(--blanco) !important; }
+
+/* ============================================================
+   BOTONES Y CONTROLES
+   ============================================================ */
 #btn-iniciar {
     background-color: var(--neon-verde);
     color: #000;
     border: none;
-    padding: 15px 45px;
+    padding: 12px 35px;
     font-size: 1.1rem;
     font-weight: 800;
-    border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 5px 0px #009900;
-    text-transform: uppercase;
-    transition: all 0.1s;
+    margin-top: 10px;
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+    transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
-#btn-iniciar:active {
-    transform: translateY(4px);
-    box-shadow: 0 0px 0px #009900;
+#btn-iniciar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px var(--neon-verde);
+    background-color: #33ff33;
 }
 
 /* ============================================================
-   TEXTOS (Centrado garantizado)
+   ANIMACIONES
    ============================================================ */
-#texto-dinamico, #texto-estatico {
-    width: 100%;
-    color: var(--neon-azul);
-    font-weight: bold;
-    font-size: clamp(1rem, 4vw, 1.3rem);
-    padding: 10px;
-}
+@keyframes aparecerSuave { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulsoAlerta { from { transform: scale(1); } to { transform: scale(1.03); } }
+@keyframes levitarReposo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes vibrarHabla { 0% { transform: translate(1px); } 50% { transform: translate(-1px); } }
+@keyframes pulsoEscucha { 0%, 100% { transform: scale(1.05); } 50% { transform: scale(1.1); } }
+@keyframes temblorError { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-#creditos-iris {
-    position: absolute;
-    width: 85%;
-    color: var(--neon-verde);
-    text-align: center;
-}
+/* ============================================================
+   MEDIA QUERY (RESPONSIVE)
+   ============================================================ */
+@media (max-width: 600px) {
+    #logo-unad { width: 120px; }
+    #robot-avatar { width: 60px; }
+    #logo-iris { font-size: 2.2rem; }
 
-footer {
-    width: 100%;
-    padding: 10px 0;
-    font-size: 0.7rem;
-    flex-shrink: 0;
-}
+    #cuadro-texto { 
+        height: calc(var(--vh, 1vh) * 40); 
+        padding: 20px; 
+        margin-bottom: 20px; 
+    }
 
-/* 🔵 ANIMACIÓN NEÓN (Solo para el borde) */
-#cuadro-texto.escuchando {
-    border-color: var(--neon-azul);
-    box-shadow: 0 0 15px var(--neon-azul);
+    .acronimo { font-size: 0.85rem; }
+    .eslogan { font-size: 0.8rem; }
+    
+    body::-webkit-scrollbar { display: none; }
 }

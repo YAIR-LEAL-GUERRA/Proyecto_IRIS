@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-
-    <!-- 🔧 VIEWPORT OPTIMIZADO (MÓVILES REALES) -->
+    
+    <!-- 🔧 Mejora de viewport para móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
+    
     <title>IRIS - Interfaz de Respuesta Integral y Sensorial</title>
-
+    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,6 +15,7 @@
     <meta name="theme-color" content="#000000">
 
     <link rel="apple-touch-icon" href="img/logo.jpg">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,15 +23,11 @@
 
     <header role="banner">
         <img src="img/logo.jpg" alt="Logo UNAD" id="logo-unad">
-
+        
         <div class="contenedor-linea">
             <div id="avatar-robot-contenedor">
-                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
-                     id="robot-avatar"
-                     alt="Asistente Virtual IRIS"
-                     class="robot-reposo">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" id="robot-avatar" alt="Asistente Virtual IRIS" class="robot-reposo">
             </div>
-
             <h1 id="logo-iris">I.R.I.S.</h1>
         </div>
 
@@ -39,33 +36,25 @@
     </header>
 
     <main id="contenedor-principal" role="main">
-
+        
         <section id="pantalla-interactiva" aria-live="polite">
             <div id="cuadro-texto">
-                <p id="texto-dinamico">
-                    Presiona el botón, cualquier tecla o toca la pantalla para iniciar.
-                </p>
+                <p id="texto-dinamico">Presiona el botón, cualquier tecla o toca la pantalla para iniciar.</p>
             </div>
         </section>
 
         <nav id="controles">
-            <!-- 🔧 FIX IMPORTANTE: evitar función inexistente -->
-            <button id="btn-iniciar" onclick="iniciar()">
-                ACTIVAR IRIS
-            </button>
+            <button id="btn-iniciar" onclick="iniciarSistema()">ACTIVAR IRIS</button>
         </nav>
-
     </main>
 
     <footer role="contentinfo">
-        <p>
-            Estrategia Pedagógica Accesible - Tarea 3 UNAD | Estudiante: Yair Bernardo Leal Guerra
-        </p>
+        <p>Estrategia Pedagógica Accesible - Tarea 3 UNAD | Estudiante: Yair Bernardo Leal Guerra</p>
     </footer>
 
     <script src="script.js"></script>
 
-    <!-- 🔧 FIX REAL PARA ALTURA EN MÓVILES -->
+    <!-- 🔧 FIX CLAVE PARA MÓVILES (especialmente WhatsApp WebView) -->
     <script>
         function setRealHeight() {
             document.documentElement.style.setProperty(
@@ -74,7 +63,10 @@
             );
         }
 
+        // Ejecutar al cargar
         setRealHeight();
+
+        // Recalcular en cambios de pantalla
         window.addEventListener('resize', setRealHeight);
         window.addEventListener('orientationchange', setRealHeight);
     </script>
