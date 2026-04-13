@@ -1,6 +1,12 @@
+/* ============================================================
+   PROYECTO IRIS - VERSIÓN FINAL OPTIMIZADA (UNAD 2026)
+   Líder: Yair Leal Guerra
+   ============================================================ */
+
 let nombreUsuario = "";
 let irisHablando = false;
 let animacionActiva = true;
+let idAnimacion;
 
 const synth = window.speechSynthesis;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -12,81 +18,49 @@ const cuadro = document.getElementById("cuadro-texto");
 let temasVistos = [];
 const temas = ["cuerpo", "mitos", "decisión"];
 
-/* =========================
-   VOZ FEMENINA
-========================= */
+// CARGAR VOZ FEMENINA
 let vozFemenina = null;
-
 function cargarVozFemenina() {
     const voces = synth.getVoices();
-
-    vozFemenina =
-        voces.find(v =>
-            (v.lang.includes("es-ES") ||
-             v.lang.includes("es-MX") ||
-             v.lang.includes("es-CO")) &&
-            (
-                v.name.toLowerCase().includes("female") ||
-                v.name.toLowerCase().includes("maria") ||
-                v.name.toLowerCase().includes("sofia") ||
-                v.name.toLowerCase().includes("lucia") ||
-                v.name.toLowerCase().includes("google") ||
-                v.name.toLowerCase().includes("microsoft")
-            )
-        ) ||
-        voces.find(v => v.lang.includes("es")) ||
-        voces[0];
+    vozFemenina = voces.find(v => (v.lang.includes("es-CO") || v.lang.includes("es-MX") || v.lang.includes("es-ES")) && 
+                  (v.name.toLowerCase().includes("maria") || v.name.toLowerCase().includes("sabina") || v.name.toLowerCase().includes("google"))) 
+                  || voces.find(v => v.lang.includes("es"));
 }
-
-speechSynthesis.onvoiceschanged = cargarVozFemenina;
+if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = cargarVozFemenina;
 cargarVozFemenina();
 
-/* =========================
-   CONFIG VOZ
-========================= */
+// CONFIGURACIÓN OÍDO
 oido.lang = "es-CO";
 oido.continuous = false;
 oido.interimResults = false;
 
-/* =========================
-   PAUSA ANIMACIÓN
-========================= */
-cuadro.addEventListener("click", () => {
-    animacionActiva = !animacionActiva;
-});
-
-/* =========================
-   ESTADO ROBOT
-========================= */
 function setEstado(estado) {
     if (!robot) return;
     robot.className = "";
-
     if (estado === "hablando") robot.classList.add("robot-hablando");
     if (estado === "escuchando") robot.classList.add("robot-escuchando");
     if (estado === "reposo") robot.classList.add("robot-reposo");
 }
 
 /* =========================
-   HABLAR
+   SISTEMA DE HABLA Y SCROLL
 ========================= */
 function hablar(texto, callback) {
     synth.cancel();
+    if (idAnimacion) cancelAnimationFrame(idAnimacion);
+    
     irisHablando = true;
-
     setEstado("hablando");
     cuadro.innerHTML = "";
 
     const utter = new SpeechSynthesisUtterance(texto);
     utter.lang = "es-CO";
-    utter.rate = 0.75;
-    utter.pitch = 1.08;
-
+    utter.rate = 0.85; // Velocidad óptima para comprensión
+    utter.pitch = 1.05;
     if (vozFemenina) utter.voice = vozFemenina;
 
     const el = document.createElement("div");
-
-    const esLargo = texto.length > 160;
+    const esLargo = texto.length > 150;
 
     if (esLargo) {
         el.id = "creditos-iris";
@@ -94,28 +68,23 @@ function hablar(texto, callback) {
         cuadro.appendChild(el);
 
         let start = null;
-        const duracion = texto.length * 50;
-
+        const duracion = texto.length * 60; 
         const startY = cuadro.offsetHeight;
-        const endY = -el.scrollHeight;
+        const endY = -el.scrollHeight - 20;
 
         function animar(t) {
             if (!start) start = t;
-
             if (animacionActiva) {
                 const p = Math.min((t - start) / duracion, 1);
                 const eased = 1 - Math.pow(1 - p, 3);
                 const y = startY + (endY - startY) * eased;
-
                 el.style.transform = `translateY(${y}px)`;
-
-                if (p < 1) requestAnimationFrame(animar);
+                if (p < 1) idAnimacion = requestAnimationFrame(animar);
             } else {
-                requestAnimationFrame(animar);
+                idAnimacion = requestAnimationFrame(animar);
             }
         }
-
-        requestAnimationFrame(animar);
+        idAnimacion = requestAnimationFrame(animar);
     } else {
         el.id = "texto-estatico";
         el.innerText = texto;
@@ -124,137 +93,96 @@ function hablar(texto, callback) {
 
     utter.onend = () => {
         irisHablando = false;
-        setEstado("escuchando");
-
         setTimeout(() => {
-            escucharSeguro();
+            if (callback) callback();
+            else escucharSeguro();
         }, 800);
     };
-
     synth.speak(utter);
 }
 
 /* =========================
-   ESCUCHA SEGURA
+   GESTIÓN DE MICRÓFONO
 ========================= */
 function escucharSeguro() {
     if (irisHablando) return;
-
     try {
-        oido.abort();
-
+        oido.stop();
         setTimeout(() => {
-            oido.start();
-            cuadro.innerHTML = `<div id="texto-estatico">IRIS está escuchando...</div>`;
-            setEstado("escuchando");
-        }, 300);
-
-    } catch {
-        setTimeout(() => escucharSeguro(), 1000);
-    }
+            if (!irisHablando) {
+                oido.start();
+                cuadro.innerHTML = `<div id="texto-estatico">IRIS te escucha...</div>`;
+                setEstado("escuchando");
+            }
+        }, 400);
+    } catch (e) { console.log("Reintento de micro"); }
 }
 
-/* =========================
-   EVENTOS VOZ
-========================= */
 oido.onresult = (e) => {
     if (irisHablando) return;
-
     const texto = e.results[0][0].transcript.toLowerCase();
 
     if (!nombreUsuario) {
         nombreUsuario = texto;
-
-        hablar(
-`Hola ${nombreUsuario}.
-
-Soy IRIS, una interfaz educativa sobre autonomía, cuerpo y decisiones.
-
-Exploraremos tres temas:
-CUERPO, MITOS y DECISIÓN.
-
-Di uno para comenzar.`
-        );
-
+        hablar(`Hola ${nombreUsuario}. Soy IRIS. Exploraremos tres temas: CUERPO, MITOS y DECISIÓN. Di uno para comenzar.`);
         return;
     }
+    
+    if (texto.includes("repetir")) { temasVistos = []; iniciar(); return; }
+    if (texto.includes("salir")) { hablar("Adiós. Tu autonomía es poder."); return; }
 
     manejar(texto);
 };
 
-oido.onerror = () => {
-    setTimeout(() => escucharSeguro(), 1000);
-};
-
-oido.onend = () => {
-    if (!irisHablando) {
-        setTimeout(() => escucharSeguro(), 800);
+// Si el usuario no habla, IRIS no se queda "muerta"
+oido.onerror = (e) => {
+    if (e.error === 'no-speech' && !irisHablando) {
+        setTimeout(escucharSeguro, 1000);
     }
 };
 
 /* =========================
-   LÓGICA TEMAS (TUS TEXTOS COMPLETOS)
+   LÓGICA DE TEMAS
 ========================= */
 function manejar(texto) {
-
     let tema = null;
-
     if (texto.includes("cuerpo")) tema = "cuerpo";
     if (texto.includes("mitos")) tema = "mitos";
     if (texto.includes("decisión") || texto.includes("decision")) tema = "decisión";
 
     if (!tema) {
-        hablar("No entendí. Di: cuerpo, mitos o decisión.");
+        hablar("No entendí. Por favor di: cuerpo, mitos o decisión.");
         return;
     }
 
     if (temasVistos.includes(tema)) {
         const faltan = temas.filter(t => !temasVistos.includes(t));
-        hablar(`Ya viste ese tema. Te faltan: ${faltan.join(" y ").toUpperCase()}.`);
+        hablar(`Ya vimos ese tema. Te falta conocer: ${faltan.join(" y ").toUpperCase()}.`);
         return;
     }
 
     temasVistos.push(tema);
-
     const contenido = {
-        cuerpo:
-`La dimensión biológica representa el derecho fundamental a habitar, reconocer y cuidar tu propio cuerpo con total soberanía. Implica desarrollar un conocimiento profundo sobre tus sentidos y funciones reproductivas. Se trata de garantizar que tú seas la máxima autoridad sobre tu integridad física, asegurando que cualquier intervención respete siempre tu consentimiento y dignidad.`,
-
-        mitos:
-`La dimensión social y afectiva reconoce que tienes el derecho inalienable a amar y expresar tu erotismo de manera libre, rompiendo con prejuicios que intentan invisibilizar la sexualidad en la discapacidad. Tienes derecho a disfrutar de tu intimidad, a explorar tu identidad de género y a decidir sobre la formación de una familia si así lo deseas.`,
-
-        decisión:
-`La dimensión ética se centra en tu autonomía para la toma de decisiones. No se trata solo de elegir, sino de ejercer tu consentimiento informado y libre, asegurando que cada paso sea un reflejo de tus propios valores y no de presiones externas. Es tu derecho a ser el arquitecto de tu propio proyecto de vida.`
+        cuerpo: `La dimensión biológica es el derecho a cuidar tu propio cuerpo con soberanía. Tú eres la máxima autoridad sobre tu integridad física y reproductiva.`,
+        mitos: `La dimensión social reconoce tu derecho a amar y expresar tu erotismo libremente, rompiendo prejuicios que intentan invisibilizar la sexualidad en la discapacidad.`,
+        decisión: `La dimensión ética es tu derecho al consentimiento informado. Eres el arquitecto de tu vida y tus decisiones deben reflejar tus valores, no presiones externas.`
     };
 
     const faltan = temas.filter(t => !temasVistos.includes(t));
-
     if (faltan.length) {
-        hablar(`${contenido[tema]}
-
-Te falta: ${faltan.join(" y ").toUpperCase()}.`);
+        hablar(`${contenido[tema]}. Te falta conocer: ${faltan.join(" y ").toUpperCase()}.`);
     } else {
-        hablar(`${contenido[tema]}
-
-Felicidades ${nombreUsuario}.
-
-Completaste los 3 temas de IRIS.
-
-Puedes decir REPETIR o SALIR.`);
+        hablar(`${contenido[tema]}. Felicidades ${nombreUsuario}, completaste los temas. Di REPETIR o SALIR.`);
     }
 }
 
-/* =========================
-   INICIO
-========================= */
 function iniciar() {
     nombreUsuario = "";
     temasVistos = [];
-    setEstado("reposo");
-
-    hablar("Hola, soy IRIS. ¿Cuál es tu nombre?");
+    hablar("Hola, soy IRIS, tu guía. ¿Cuál es tu nombre?");
 }
 
+// Iniciar al cargar
 window.addEventListener("load", () => {
-    setTimeout(iniciar, 900);
+    setTimeout(iniciar, 1000);
 });
