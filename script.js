@@ -13,7 +13,7 @@ let temasVistos = [];
 const temas = ["cuerpo", "mitos", "decisión"];
 
 /* =========================
-   VOZ FEMENINA FORZADA (MEJOR POSIBLE)
+   VOZ FEMENINA
 ========================= */
 let vozFemenina = null;
 
@@ -38,9 +38,7 @@ function cargarVozFemenina() {
         voces[0];
 }
 
-if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = cargarVozFemenina;
-}
+speechSynthesis.onvoiceschanged = cargarVozFemenina;
 cargarVozFemenina();
 
 /* =========================
@@ -51,7 +49,7 @@ oido.continuous = false;
 oido.interimResults = false;
 
 /* =========================
-   PAUSA TÁCTIL (SOLO ANIMACIÓN)
+   PAUSA ANIMACIÓN
 ========================= */
 cuadro.addEventListener("click", () => {
     animacionActiva = !animacionActiva;
@@ -70,7 +68,7 @@ function setEstado(estado) {
 }
 
 /* =========================
-   MOTOR DE VOZ + TEXTO
+   HABLAR
 ========================= */
 function hablar(texto, callback) {
     synth.cancel();
@@ -83,14 +81,12 @@ function hablar(texto, callback) {
     utter.lang = "es-CO";
     utter.rate = 0.98;
     utter.pitch = 1.08;
-    utter.volume = 1;
 
-    if (vozFemenina) {
-        utter.voice = vozFemenina;
-    }
+    if (vozFemenina) utter.voice = vozFemenina;
+
+    const el = document.createElement("div");
 
     const esLargo = texto.length > 160;
-    const el = document.createElement("div");
 
     if (esLargo) {
         el.id = "creditos-iris";
@@ -108,9 +104,7 @@ function hablar(texto, callback) {
 
             if (animacionActiva) {
                 const p = Math.min((t - start) / duracion, 1);
-
                 const eased = 1 - Math.pow(1 - p, 3);
-
                 const y = startY + (endY - startY) * eased;
 
                 el.style.transform = `translateY(${y}px)`;
@@ -133,8 +127,7 @@ function hablar(texto, callback) {
         setEstado("escuchando");
 
         setTimeout(() => {
-            if (callback) callback();
-            else escuchar();
+            escucharSeguro();
         }, 800);
     };
 
@@ -142,20 +135,27 @@ function hablar(texto, callback) {
 }
 
 /* =========================
-   ESCUCHA
+   ESCUCHA SEGURA
 ========================= */
-function escuchar() {
+function escucharSeguro() {
     if (irisHablando) return;
 
     try {
-        oido.start();
-        cuadro.innerHTML = `<div id="texto-estatico">IRIS está escuchando...</div>`;
-        setEstado("escuchando");
-    } catch {}
+        oido.abort();
+
+        setTimeout(() => {
+            oido.start();
+            cuadro.innerHTML = `<div id="texto-estatico">IRIS está escuchando...</div>`;
+            setEstado("escuchando");
+        }, 300);
+
+    } catch {
+        setTimeout(() => escucharSeguro(), 1000);
+    }
 }
 
 /* =========================
-   RESULTADO VOZ
+   EVENTOS VOZ
 ========================= */
 oido.onresult = (e) => {
     if (irisHablando) return;
@@ -182,8 +182,18 @@ Di uno para comenzar.`
     manejar(texto);
 };
 
+oido.onerror = () => {
+    setTimeout(() => escucharSeguro(), 1000);
+};
+
+oido.onend = () => {
+    if (!irisHablando) {
+        setTimeout(() => escucharSeguro(), 800);
+    }
+};
+
 /* =========================
-   LÓGICA TEMAS
+   LÓGICA TEMAS (TUS TEXTOS COMPLETOS)
 ========================= */
 function manejar(texto) {
 
@@ -208,31 +218,13 @@ function manejar(texto) {
 
     const contenido = {
         cuerpo:
-`TEMA: CUERPO
-
-Tu cuerpo es tu primer territorio de autonomía.
-
-Tienes derecho a conocerlo, cuidarlo y decidir sobre él.
-
-IRIS te recuerda: tu cuerpo es tuyo.`,
+`La dimensión biológica representa el derecho fundamental a habitar, reconocer y cuidar tu propio cuerpo con total soberanía. Implica desarrollar un conocimiento profundo sobre tus sentidos y funciones reproductivas. Se trata de garantizar que tú seas la máxima autoridad sobre tu integridad física, asegurando que cualquier intervención respete siempre tu consentimiento y dignidad.`,
 
         mitos:
-`TEMA: MITOS
-
-Existen creencias sociales que limitan la libertad afectiva.
-
-Pero tú tienes derecho a vivir sin prejuicios.
-
-IRIS te recuerda: los mitos no te definen.`,
+`La dimensión social y afectiva reconoce que tienes el derecho inalienable a amar y expresar tu erotismo de manera libre, rompiendo con prejuicios que intentan invisibilizar la sexualidad en la discapacidad. Tienes derecho a disfrutar de tu intimidad, a explorar tu identidad de género y a decidir sobre la formación de una familia si así lo deseas.`,
 
         decisión:
-`TEMA: DECISIÓN
-
-La autonomía significa decidir con libertad e información.
-
-No es obedecer, es elegir.
-
-IRIS te recuerda: decidir es tu derecho.`
+`La dimensión ética se centra en tu autonomía para la toma de decisiones. No se trata solo de elegir, sino de ejercer tu consentimiento informado y libre, asegurando que cada paso sea un reflejo de tus propios valores y no de presiones externas. Es tu derecho a ser el arquitecto de tu propio proyecto de vida.`
     };
 
     const faltan = temas.filter(t => !temasVistos.includes(t));
