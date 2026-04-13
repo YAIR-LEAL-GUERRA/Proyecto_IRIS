@@ -1,6 +1,5 @@
 /* ============================================================
-   PROYECTO IRIS - VERSIÓN FINAL ESTABLE (UNAD 2026)
-   Optimizado para: Motorola G54 y Navegadores Desktop
+   PROYECTO IRIS - SOLUCIÓN FINAL (ESTRUCTURA DE HIERRO)
    ============================================================ */
 :root {
     --fondo: #000000;
@@ -14,179 +13,119 @@
 body {
     background-color: var(--fondo);
     color: var(--blanco);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    
-    /* BLOQUEO DE SCROLL */
     height: 100vh;
     height: calc(var(--vh, 1vh) * 100);
     overflow: hidden; 
-    
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centrado horizontal global */
-    justify-content: space-between; /* Distribuye Header, Main y Footer */
-    text-align: center; /* Asegura que todos los textos internos se centren */
+    text-align: center;
 }
 
-/* ============================================================
-   HEADER (Logo y Títulos)
-   ============================================================ */
 header {
     width: 100%;
-    padding-top: 15px;
+    padding: 15px 0;
     flex-shrink: 0;
 }
 
-#logo-unad {
-    width: 90px;
-    margin: 0 auto 5px;
-    display: block;
-}
+#logo-unad { width: 90px; margin: 0 auto; display: block; }
 
 .contenedor-linea {
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: center; /* Centra el robot y el nombre IRIS */
     gap: 10px;
 }
 
-#robot-avatar {
-    width: 55px;
-    transition: all 0.3s ease;
-}
-
-.robot-hablando {
-    filter: drop-shadow(0 0 10px var(--neon-verde));
-    transform: scale(1.1);
-}
-
-#logo-iris {
-    font-size: 2rem;
-    margin: 0;
-    color: var(--neon-verde);
-}
-
-.acronimo { font-size: 0.8rem; margin: 2px 0; }
-.eslogan { color: var(--neon-amarillo); font-size: 0.75rem; margin: 0; }
-
 /* ============================================================
-   MAIN: CONTENEDOR CENTRAL (Aquí estaba el fallo de centrado)
+   EL CENTRO (Donde estaba el desastre)
    ============================================================ */
 main {
-    flex-grow: 1; /* Ocupa todo el espacio entre header y footer */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centra verticalmente */
-    align-items: center;     /* CENTRA HORIZONTALMENTE EL CUADRO Y BOTÓN */
-    width: 100%;
-    max-width: 800px;
-    gap: 20px; /* Espacio entre cuadro y botón */
+    justify-content: center; /* Centra vertical */
+    align-items: center;     /* Centra horizontal */
+    width: 100%;             /* IMPORTANTE: ocupa todo el ancho en PC */
 }
 
 #cuadro-texto {
-    box-sizing: border-box; 
+    box-sizing: border-box;
     border: 3px solid var(--neon-verde);
     border-radius: 20px;
     background-color: rgba(0, 0, 0, 0.85);
-    width: 90%;
-    max-width: 500px;
-    height: 42vh;
-    height: calc(var(--vh, 1vh) * 42);
-    overflow: hidden;
-    position: relative;
+    
+    /* 🛠️ EL FIX DEL "CUADRO CERRADO": */
+    width: 90%;             /* Ancho en móvil */
+    max-width: 500px;       /* Ancho máximo en PC */
+    min-width: 280px;       /* EVITA QUE SE CIERRE COMO UNA LÍNEA */
+    
+    height: 40vh;
+    height: calc(var(--vh, 1vh) * 40);
     
     display: flex;
-    justify-content: center; /* Centra texto horizontal */
-    align-items: center;     /* Centra texto vertical */
-    transition: all 0.4s ease;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;         /* OBLIGA A QUE NO SE DEJE APLASTAR */
 }
 
-/* 🔵 Estado: ESCUCHANDO */
-#cuadro-texto.escuchando {
-    border-color: var(--neon-azul);
-    animation: neon-titilante-azul 1.5s infinite ease-in-out;
-}
-
-/* 🔴 Estado: ERROR */
-#cuadro-texto.alerta-error {
-    border-color: var(--error-rojo) !important;
-    animation: vibrar-rojo 0.3s linear, neon-titilante-rojo 1.5s infinite;
-}
-
-/* ============================================================
-   BOTÓN Y CONTROLES
-   ============================================================ */
 #controles {
     width: 100%;
+    margin-top: 20px;
     display: flex;
-    justify-content: center; /* Centra el botón horizontalmente */
+    justify-content: center;
 }
 
 #btn-iniciar {
     background-color: var(--neon-verde);
     color: #000;
     border: none;
-    padding: 14px 40px;
-    font-size: 1rem;
+    padding: 15px 45px;
+    font-size: 1.1rem;
     font-weight: 800;
     border-radius: 50px;
     cursor: pointer;
-    position: relative;
-    top: 0;
     box-shadow: 0 5px 0px #009900;
-    transition: all 0.1s ease;
     text-transform: uppercase;
-    flex-shrink: 0;
+    transition: all 0.1s;
 }
 
 #btn-iniciar:active {
-    top: 5px;
+    transform: translateY(4px);
     box-shadow: 0 0px 0px #009900;
 }
 
 /* ============================================================
-   TEXTOS Y ANIMACIONES
+   TEXTOS (Centrado garantizado)
    ============================================================ */
 #texto-dinamico, #texto-estatico {
-    font-size: clamp(1rem, 4vw, 1.25rem);
+    width: 100%;
     color: var(--neon-azul);
     font-weight: bold;
-    padding: 15px;
-    margin: 0;
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    padding: 10px;
 }
 
 #creditos-iris {
     position: absolute;
     width: 85%;
     color: var(--neon-verde);
-    font-size: 1.1rem;
-    line-height: 1.5;
     text-align: center;
-    will-change: transform;
 }
 
 footer {
-    padding: 10px;
-    font-size: 0.65rem;
-    flex-shrink: 0;
     width: 100%;
+    padding: 10px 0;
+    font-size: 0.7rem;
+    flex-shrink: 0;
 }
 
-/* ANIMACIONES */
-@keyframes neon-titilante-azul {
-    0%, 100% { box-shadow: 0 0 5px var(--neon-azul), inset 0 0 5px var(--neon-azul); }
-    50% { box-shadow: 0 0 20px var(--neon-azul), inset 0 0 10px var(--neon-azul); }
-}
-
-@keyframes neon-titilante-rojo {
-    0%, 100% { box-shadow: 0 0 5px var(--error-rojo), inset 0 0 5px var(--error-rojo); }
-    50% { box-shadow: 0 0 20px var(--error-rojo), inset 0 0 10px var(--error-rojo); }
-}
-
-@keyframes vibrar-rojo {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    75% { transform: translateX(3px); }
+/* 🔵 ANIMACIÓN NEÓN (Solo para el borde) */
+#cuadro-texto.escuchando {
+    border-color: var(--neon-azul);
+    box-shadow: 0 0 15px var(--neon-azul);
 }
