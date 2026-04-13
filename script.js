@@ -172,7 +172,7 @@ function manejar(texto) {
     if (faltan.length) {
         hablar(`${contenido[tema]}. Te falta conocer: ${faltan.join(" y ").toUpperCase()}.`);
     } else {
-        hablar(`${contenido[tema]}. Felicidades ${nombreUsuario}, completaste los temas. Di REPETIR o SALIR.`);
+        hablar(`${contenido[tema]}. Felicidades ${nombreUsuario}, completaste los temas. Si quieres repetir los temas solo Dí: REPETIR o simplemente SALIR.`);
     }
 }
 
