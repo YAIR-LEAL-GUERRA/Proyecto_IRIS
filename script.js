@@ -79,7 +79,7 @@ function hablar(texto, callback) {
 
     const utter = new SpeechSynthesisUtterance(texto);
     utter.lang = "es-CO";
-    utter.rate = 0.98;
+    utter.rate = 0.75;
     utter.pitch = 1.08;
 
     if (vozFemenina) utter.voice = vozFemenina;
