@@ -1,212 +1,245 @@
 let nombreUsuario = "";
-let irisHablando = false; 
+let irisHablando = false;
 let animacionActiva = true;
 
-const sintetizador = window.speechSynthesis;
-const Reconocimiento = window.SpeechRecognition || window.webkitSpeechRecognition;
-const oido = new Reconocimiento();
-const robot = document.getElementById('robot-avatar');
-const cuadro = document.getElementById('cuadro-texto');
+const synth = window.speechSynthesis;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const oido = new SR();
 
-let temasVistos = []; 
-const totalTemas = ['cuerpo', 'mitos', 'decisión'];
+const robot = document.getElementById("robot-avatar");
+const cuadro = document.getElementById("cuadro-texto");
 
-oido.lang = 'es-CO';
+let temasVistos = [];
+const temas = ["cuerpo", "mitos", "decisión"];
+
+oido.lang = "es-CO";
 oido.continuous = false;
 oido.interimResults = false;
 
 /* =========================
-   PAUSA TÁCTIL (solo texto)
+   MICRO FEEDBACK (VIBRACIÓN)
+========================= */
+function vibrar(ms = 20) {
+    if (navigator.vibrate) navigator.vibrate(ms);
+}
+
+/* =========================
+   ESTADO VISUAL
+========================= */
+function setEstado(estado) {
+    if (!robot) return;
+    robot.className = "";
+
+    if (estado === "hablando") robot.classList.add("robot-hablando");
+    if (estado === "escuchando") robot.classList.add("robot-escuchando");
+    if (estado === "reposo") robot.classList.add("robot-reposo");
+}
+
+/* =========================
+   PAUSA TÁCTIL
 ========================= */
 cuadro.addEventListener("click", () => {
     animacionActiva = !animacionActiva;
+    vibrar(10);
 });
 
 /* =========================
-   FUNCIÓN HABLAR
+   MOTOR DE VOZ PRO
 ========================= */
-function hablar(mensaje, callback) {
-    sintetizador.cancel();
+function hablar(texto, callback) {
+    synth.cancel();
     irisHablando = true;
+
+    setEstado("hablando");
     cuadro.innerHTML = "";
 
-    const lectura = new SpeechSynthesisUtterance(mensaje);
-    lectura.lang = 'es-CO';
-    lectura.rate = 1;
-    lectura.pitch = 1.1;
+    const utter = new SpeechSynthesisUtterance(texto);
+    utter.lang = "es-CO";
+    utter.rate = 0.98;
+    utter.pitch = 1.08;
+    utter.volume = 1;
 
-    const esLargo = mensaje.length > 150;
-    const contenedor = document.createElement("div");
+    const esLargo = texto.length > 160;
+    const el = document.createElement("div");
 
     if (esLargo) {
-        contenedor.id = "creditos-iris";
-        contenedor.innerText = mensaje;
-        cuadro.appendChild(contenedor);
+        el.id = "creditos-iris";
+        el.innerText = texto;
+        cuadro.appendChild(el);
 
         let start = null;
-        const duracion = mensaje.length * 60;
+        const duracion = texto.length * 50;
 
-        let startY = cuadro.offsetHeight;
-        let endY = -contenedor.scrollHeight;
+        const startY = cuadro.offsetHeight;
+        const endY = -el.scrollHeight;
 
         function animar(t) {
             if (!start) start = t;
 
             if (animacionActiva) {
-                let progreso = (t - start) / duracion;
+                const p = Math.min((t - start) / duracion, 1);
 
-                let y = startY + (endY - startY) * progreso;
-                contenedor.style.transform = `translateY(${y}px)`;
+                // easing suave tipo app profesional
+                const eased = 1 - Math.pow(1 - p, 3);
 
-                if (progreso < 1) requestAnimationFrame(animar);
+                const y = startY + (endY - startY) * eased;
+
+                el.style.transform = `translateY(${y}px)`;
+
+                if (p < 1) requestAnimationFrame(animar);
             } else {
                 requestAnimationFrame(animar);
             }
         }
 
         requestAnimationFrame(animar);
-
     } else {
-        contenedor.id = "texto-estatico";
-        contenedor.innerText = mensaje;
-        cuadro.appendChild(contenedor);
+        el.id = "texto-estatico";
+        el.innerText = texto;
+        cuadro.appendChild(el);
     }
 
-    lectura.onend = () => {
+    utter.onstart = () => vibrar(5);
+
+    utter.onend = () => {
         irisHablando = false;
+        setEstado("escuchando");
+
         setTimeout(() => {
             if (callback) callback();
-            else iniciarEscucha();
-        }, 1000);
+            else escuchar();
+        }, 700);
     };
 
-    sintetizador.speak(lectura);
+    synth.speak(utter);
 }
 
 /* =========================
    ESCUCHA
 ========================= */
-function iniciarEscucha() {
+function escuchar() {
     if (irisHablando) return;
 
     try {
         oido.start();
-        cuadro.innerHTML = `<div id="texto-estatico">>>> IRIS ESCUCHANDO...</div>`;
+        cuadro.innerHTML = `<div id="texto-estatico">IRIS está escuchando...</div>`;
+        setEstado("escuchando");
     } catch {}
 }
 
 /* =========================
-   RECONOCIMIENTO DE VOZ
+   VOZ INPUT
 ========================= */
-oido.onresult = (event) => {
+oido.onresult = (e) => {
     if (irisHablando) return;
 
-    const voz = event.results[0][0].transcript.toLowerCase();
+    const texto = e.results[0][0].transcript.toLowerCase();
+
+    vibrar(15);
 
     if (!nombreUsuario) {
-        nombreUsuario = voz;
+        nombreUsuario = texto;
 
         hablar(
-`Hola ${nombreUsuario}. Soy IRIS, una interfaz educativa sobre autonomía, cuerpo y derechos.
-Vamos a explorar tres temas importantes: cuerpo, mitos y decisión.
-Di uno de ellos para comenzar.`
+`Hola ${nombreUsuario}.
+
+Soy IRIS, un asistente educativo sobre autonomía, cuerpo y toma de decisiones.
+
+Exploraremos tres pilares fundamentales:
+cuerpo, mitos y decisión.
+
+Di uno para comenzar.`
         );
 
         return;
     }
 
-    procesarComandos(voz);
+    manejar(texto);
 };
 
 /* =========================
-   LÓGICA DE TEMAS
+   LÓGICA INTELIGENTE
 ========================= */
-function procesarComandos(comando) {
+function manejar(texto) {
 
-    let seleccion = "";
+    let tema = null;
 
-    if (comando.includes("cuerpo")) seleccion = "cuerpo";
-    else if (comando.includes("mitos")) seleccion = "mitos";
-    else if (comando.includes("decisión") || comando.includes("decision")) seleccion = "decisión";
+    if (texto.includes("cuerpo")) tema = "cuerpo";
+    if (texto.includes("mitos")) tema = "mitos";
+    if (texto.includes("decisión") || texto.includes("decision")) tema = "decisión";
 
-    if (!seleccion) {
-        hablar("No entendí. Di: cuerpo, mitos o decisión.");
+    if (!tema) {
+        hablar("No lo entendí claramente. Di: cuerpo, mitos o decisión.");
         return;
     }
 
-    if (temasVistos.includes(seleccion)) {
-        const faltantes = totalTemas.filter(t => !temasVistos.includes(t));
-        hablar(`Ya viste ese tema. Aún te faltan: ${faltantes.join(" y ").toUpperCase()}.`);
+    if (temasVistos.includes(tema)) {
+        const faltan = temas.filter(t => !temasVistos.includes(t));
+        hablar(`Ya exploraste ese tema. Te faltan: ${faltan.join(" y ").toUpperCase()}.`);
         return;
     }
 
-    temasVistos.push(seleccion);
+    temasVistos.push(tema);
 
-    const textos = {
-        cuerpo: `
-TEMA: CUERPO
+    const contenido = {
+        cuerpo:
+`TEMA: CUERPO
 
-Este tema trata sobre el derecho a reconocer, habitar y cuidar tu cuerpo con autonomía.
+Tu cuerpo es tu primer territorio de autonomía.
 
-Significa que tu cuerpo es tuyo, que nadie puede decidir por ti sin tu consentimiento, y que tienes derecho a la información sobre tu salud física y sexual.
+Tienes derecho a conocerlo, cuidarlo y decidir sobre él.
 
-IRIS te recuerda: tu cuerpo no es objeto de control, es tu primer territorio de libertad.
-        `,
+Nadie puede sustituir tu consentimiento.
 
-        mitos: `
-TEMA: MITOS
+IRIS te recuerda: tu cuerpo es tuyo.`,
 
-Este tema aborda los mitos y creencias sociales sobre la sexualidad, el amor y la discapacidad.
+        mitos:
+`TEMA: MITOS
 
-Muchas veces la sociedad limita o invisibiliza la vida afectiva de las personas, pero tienes derecho a amar, a explorar tu identidad y a vivir tu sexualidad de forma libre y respetada.
+Existen creencias sociales que limitan la libertad afectiva y sexual.
 
-IRIS te recuerda: los mitos no definen tu vida, tú sí.
-        `,
+Pero tú tienes derecho a amar, elegir y expresarte sin prejuicios.
 
-        decisión: `
-TEMA: DECISIÓN
+IRIS te recuerda: los mitos no definen tu identidad.`,
 
-Este tema trata sobre la autonomía y la toma de decisiones informadas.
+        decisión:
+`TEMA: DECISIÓN
 
-Significa que puedes decidir sobre tu vida, tu cuerpo y tus relaciones sin presión externa, con información clara y respeto por tu voluntad.
+La autonomía significa decidir tu vida con información y libertad.
 
-IRIS te recuerda: decidir por ti mismo es un derecho, no un privilegio.
-        `
+No es obedecer, es elegir.
+
+IRIS te recuerda: decidir es tu poder.`
     };
 
-    const mensaje = textos[seleccion];
+    const faltan = temas.filter(t => !temasVistos.includes(t));
 
-    const restantes = totalTemas.filter(t => !temasVistos.includes(t));
+    if (faltan.length) {
+        hablar(`${contenido[tema]}
 
-    if (restantes.length > 0) {
-        hablar(
-`${mensaje}
-
-Ahora te falta explorar: ${restantes.join(" y ").toUpperCase()}.`
-        );
+Te falta explorar: ${faltan.join(" y ").toUpperCase()}.`);
     } else {
-        hablar(
-`${mensaje}
+        hablar(`${contenido[tema]}
 
-¡Felicidades ${nombreUsuario}! Has completado los tres temas de IRIS.
-Recuerda: cuerpo, mitos y decisión forman parte de tu autonomía personal.
+Felicidades ${nombreUsuario}.
 
-Puedes decir REPETIR o SALIR.`
-        );
+Has completado los tres pilares de IRIS.
+
+Puedes decir REPETIR o SALIR.`);
     }
 }
 
 /* =========================
    INICIO
 ========================= */
-function iniciarSistema() {
+function iniciar() {
     nombreUsuario = "";
     temasVistos = [];
+    setEstado("reposo");
+
     hablar("Hola, soy IRIS. ¿Cuál es tu nombre?");
 }
 
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        iniciarSistema();
-    }, 1000);
+window.addEventListener("load", () => {
+    setTimeout(iniciar, 900);
 });
